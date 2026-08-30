@@ -1,0 +1,15 @@
+target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build / local files
+*.log
+.DS_Store
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
