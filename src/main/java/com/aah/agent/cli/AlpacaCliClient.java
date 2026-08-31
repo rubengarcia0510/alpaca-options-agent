@@ -91,6 +91,20 @@ public class AlpacaCliClient {
     }
 
     // Pendiente confirmar sintaxis exacta con: alpaca data option --help
+    public JsonNode getStockBars(String symbol, int limit) throws Exception {
+        String start = java.time.LocalDate.now()
+                .minusDays(60)
+                .toString();
+
+        return run(
+                "data", "bars",
+                "--symbol", symbol,
+                "--start", start,
+                "--timeframe", "1Day",
+                "--limit", String.valueOf(limit)
+        );
+    }
+
     public JsonNode getOptionChain(String underlyingSymbol) throws Exception {
         return run("data", "option", "chain", "--symbol", underlyingSymbol);
     }
