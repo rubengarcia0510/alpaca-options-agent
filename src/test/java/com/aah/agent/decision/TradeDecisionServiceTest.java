@@ -2,6 +2,9 @@ package com.aah.agent.decision;
 
 import com.aah.agent.llm.LLMConfirmation;
 import com.aah.agent.llm.LLMConfirmationService;
+import com.aah.agent.risk.RiskContext;
+import com.aah.agent.risk.RiskGateService;
+import com.aah.agent.risk.RiskResult;
 import com.aah.agent.signal.TechnicalSignal;
 import org.junit.jupiter.api.Test;
 
@@ -11,66 +14,113 @@ import static org.mockito.Mockito.*;
 class TradeDecisionServiceTest {
 
     @Test
-    void shouldRejectTradeWhenLlmRejectsTechnicalSignal() {
-        LLMConfirmationService llmConfirmationService =
-                mock(LLMConfirmationService.class);
+    void shouldApproveTradeWhenLlmConfirmsAndRiskGatesPass() {
+        var llm = mock(LLMConfirmationService.class);
+        var risk = mock(RiskGateService.class);
 
-        TechnicalSignal signal = TechnicalSignal.signal(
+        var signal = TechnicalSignal.signal(
                 "SPY",
                 600.0,
                 595.0,
-                601.0,
-                "SMA(9) above SMA(21)"
+                602.0,
+                "Short SMA above long SMA"
         );
 
-        when(llmConfirmationService.confirm(signal))
-                .thenReturn(LLMConfirmation.rejected(
-                        "Market context does not justify the trade."
-                ));
+        var confirmation = LLMConfirmation.confirmed("Setup confirmed");
+        when(llm.confirm(signal)).thenReturn(confirmation);
 
-        TradeDecisionService service =
-                new TradeDecisionService(llmConfirmationService);
-
-        LLMConfirmation result = service.evaluate(signal);
-
-        assertFalse(result.confirmed());
-        assertEquals(
-                "Market context does not justify the trade.",
-                result.reasoning()
+        var context = new RiskContext(
+                10_000.0,
+                150.0,
+                2,
+                21,
+                0.0
         );
 
-        verify(llmConfirmationService).confirm(signal);
+        when(risk.evaluate(context, confirmation))
+                .thenReturn(RiskResult.approved());
+
+        var service = new TradeDecisionService(llm, risk);
+
+        var result = service.evaluate(signal, context);
+
+        assertTrue(result.allowed());
+        assertEquals("All risk gates passed", result.reason());
+
+        verify(llm).confirm(signal);
+        verify(risk).evaluate(context, confirmation);
     }
 
     @Test
-    void shouldAllowTradeDecisionWhenLlmConfirmsTechnicalSignal() {
-        LLMConfirmationService llmConfirmationService =
-                mock(LLMConfirmationService.class);
+    void shouldRejectTradeWhenLlmRejects() {
+        var llm = mock(LLMConfirmationService.class);
+        var risk = mock(RiskGateService.class);
 
-        TechnicalSignal signal = TechnicalSignal.signal(
+        var signal = TechnicalSignal.signal(
                 "SPY",
                 600.0,
                 595.0,
-                601.0,
-                "SMA(9) above SMA(21)"
+                602.0,
+                "Short SMA above long SMA"
         );
 
-        when(llmConfirmationService.confirm(signal))
-                .thenReturn(LLMConfirmation.confirmed(
-                        "Bullish setup confirmed."
-                ));
+        var confirmation = LLMConfirmation.rejected("Weak setup");
+        when(llm.confirm(signal)).thenReturn(confirmation);
 
-        TradeDecisionService service =
-                new TradeDecisionService(llmConfirmationService);
+        var service = new TradeDecisionService(llm, risk);
 
-        LLMConfirmation result = service.evaluate(signal);
-
-        assertTrue(result.confirmed());
-        assertEquals(
-                "Bullish setup confirmed.",
-                result.reasoning()
+        var context = new RiskContext(
+                10_000.0,
+                150.0,
+                2,
+                21,
+                0.0
         );
 
-        verify(llmConfirmationService).confirm(signal);
+        var result = service.evaluate(signal, context);
+
+        assertFalse(result.allowed());
+        assertTrue(result.reason().contains("LLM"));
+
+        verify(llm).confirm(signal);
+        verifyNoInteractions(risk);
+    }
+
+    @Test
+    void shouldRejectTradeWhenRiskGateFails() {
+        var llm = mock(LLMConfirmationService.class);
+        var risk = mock(RiskGateService.class);
+
+        var signal = TechnicalSignal.signal(
+                "SPY",
+                600.0,
+                595.0,
+                602.0,
+                "Short SMA above long SMA"
+        );
+
+        var confirmation = LLMConfirmation.confirmed("Setup confirmed");
+        when(llm.confirm(signal)).thenReturn(confirmation);
+
+        var context = new RiskContext(
+                10_000.0,
+                250.0,
+                2,
+                21,
+                0.0
+        );
+
+        when(risk.evaluate(context, confirmation))
+                .thenReturn(RiskResult.rejected("Operation exceeds maximum account risk"));
+
+        var service = new TradeDecisionService(llm, risk);
+
+        var result = service.evaluate(signal, context);
+
+        assertFalse(result.allowed());
+        assertTrue(result.reason().contains("account risk"));
+
+        verify(llm).confirm(signal);
+        verify(risk).evaluate(context, confirmation);
     }
 }
