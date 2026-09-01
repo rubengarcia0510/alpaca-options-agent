@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: alpaca-options-agent
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ALPACA_API_KEY
+        sync: false
+      - key: ALPACA_SECRET_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai
+      - key: OPENAI_MODEL
+        value: openai/gpt-oss-20b
+      - key: ALPACA_LIVE_TRADE
+        value: "false"
