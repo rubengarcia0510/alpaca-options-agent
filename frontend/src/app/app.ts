@@ -51,8 +51,7 @@ interface OptionsDecision {
   styleUrl: './app.scss'
 })
 export class App {
-  private readonly apiUrl = 'http://localhost:8080';
-
+private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
   constructor(private readonly http: HttpClient) {}
 
   symbol = 'SPY';
