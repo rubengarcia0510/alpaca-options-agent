@@ -3,11 +3,9 @@ package com.aah.agent.option;
 import com.aah.agent.llm.LLMConfirmation;
 import com.aah.agent.signal.TechnicalSignal;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnBean(ChatClient.class)
 public class OptionLLMConfirmationService {
 
     private final ChatClient chatClient;

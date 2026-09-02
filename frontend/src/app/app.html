@@ -1,0 +1,133 @@
+<main class="dashboard">
+  <header class="hero">
+    <div>
+      <span class="eyebrow">ALPACA AI HACKATHON</span>
+      <h1>Options Agent</h1>
+      <p>
+        AI-assisted options trading with deterministic selection,
+        LLM confirmation and hard risk gates.
+      </p>
+    </div>
+
+    <div class="status">
+      <span class="dot"></span>
+      Agent Online
+    </div>
+  </header>
+
+  <section class="control-card">
+    <label for="symbol">Underlying symbol</label>
+
+    <div class="control-row">
+      <input
+        id="symbol"
+        type="text"
+        [(ngModel)]="symbol"
+        maxlength="10"
+        placeholder="SPY"
+      />
+
+      <button
+        type="button"
+        (click)="evaluate()"
+        [disabled]="evaluating || !symbol.trim()"
+      >
+        {{ evaluating ? 'Evaluating...' : 'Evaluate' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="pipeline">
+    <div class="section-title">
+      <span>Decision Pipeline</span>
+      <small>SAFE BY DESIGN</small>
+    </div>
+
+    <div class="steps">
+      <article class="step active">
+        <span class="number">01</span>
+        <h2>Technical Signal</h2>
+        <p>SMA crossover detects the trading setup.</p>
+      </article>
+
+      <div class="connector">→</div>
+
+      <article class="step active">
+        <span class="number">02</span>
+        <h2>Option Selection</h2>
+        <p>Deterministic CALL contract selection.</p>
+      </article>
+
+      <div class="connector">→</div>
+
+      <article class="step active">
+        <span class="number">03</span>
+        <h2>LLM Confirmation</h2>
+        <p>AI provides a second opinion.</p>
+      </article>
+
+      <div class="connector">→</div>
+
+      <article class="step active">
+        <span class="number">04</span>
+        <h2>Risk Gates</h2>
+        <p>Hard safety rules must approve.</p>
+      </article>
+    </div>
+  </section>
+
+  @if (evaluated) {
+    <section class="result-grid">
+      <article class="result-card">
+        <span class="card-label">SELECTED CONTRACT</span>
+        <strong>SPY CALL</strong>
+
+        <div class="metrics">
+          <div>
+            <span>Expiration</span>
+            <b>21 DTE</b>
+          </div>
+          <div>
+            <span>Strike</span>
+            <b>ATM</b>
+          </div>
+          <div>
+            <span>Entry</span>
+            <b>ASK</b>
+          </div>
+        </div>
+      </article>
+
+      <article class="result-card">
+        <span class="card-label">AI CONFIRMATION</span>
+        <strong class="approved">CONFIRMED</strong>
+        <p>
+          The technical signal and selected contract satisfy the
+          strategy criteria.
+        </p>
+      </article>
+
+      <article class="result-card">
+        <span class="card-label">RISK GATES</span>
+        <strong class="approved">APPROVED</strong>
+        <p>
+          Position remains within configured risk limits.
+        </p>
+      </article>
+    </section>
+
+    <section class="execution-card">
+      <div>
+        <span class="card-label">EXECUTION</span>
+        <h2>Explicit authorization required</h2>
+        <p>
+          The agent never submits an order automatically after evaluation.
+        </p>
+      </div>
+
+      <button type="button" class="secondary">
+        Authorize & Execute
+      </button>
+    </section>
+  }
+</main>
