@@ -28,4 +28,10 @@ public class DecisionHistoryService {
     public List<DecisionRecord> getHistory() {
         return List.copyOf(history);
     }
+
+    public long countByStatus(DecisionStatus status) {
+        return history.stream()
+                .filter(record -> record.status() == status)
+                .count();
+    }
 }
