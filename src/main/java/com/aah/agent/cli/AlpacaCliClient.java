@@ -106,6 +106,6 @@ public class AlpacaCliClient {
     }
 
     public JsonNode getOptionChain(String underlyingSymbol) throws Exception {
-        return run("data", "option", "chain", "--symbol", underlyingSymbol);
+        return run("data", "option", "chain", "--underlying-symbol", underlyingSymbol);
     }
 }
