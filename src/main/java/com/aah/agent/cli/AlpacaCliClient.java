@@ -2,11 +2,15 @@ package com.aah.agent.cli;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.aah.agent.option.OptionContract;
+import com.aah.agent.option.OptionSnapshot;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -107,5 +111,81 @@ public class AlpacaCliClient {
 
     public JsonNode getOptionChain(String underlyingSymbol) throws Exception {
         return run("data", "option", "chain", "--underlying-symbol", underlyingSymbol);
+    }
+
+    public JsonNode getOptionContracts(
+            String underlyingSymbol,
+            String expirationDateGte,
+            String expirationDateLte,
+            String type,
+            int limit) throws Exception {
+
+        return run(
+                "option", "contracts",
+                "--underlying-symbols", underlyingSymbol,
+                "--expiration-date-gte", expirationDateGte,
+                "--expiration-date-lte", expirationDateLte,
+                "--type", type,
+                "--limit", String.valueOf(limit)
+        );
+    }
+
+    public List<OptionContract> parseOptionContracts(JsonNode root) {
+        List<OptionContract> result = new ArrayList<>();
+
+        for (JsonNode node : root.path("option_contracts")) {
+            result.add(new OptionContract(
+                    node.path("id").asText(),
+                    node.path("symbol").asText(),
+                    node.path("underlying_symbol").asText(),
+                    LocalDate.parse(node.path("expiration_date").asText()),
+                    new BigDecimal(node.path("strike_price").asText()),
+                    node.path("type").asText(),
+                    node.path("status").asText(),
+                    node.path("tradable").asBoolean(),
+                    node.path("multiplier").asInt()
+            ));
+        }
+
+        return result;
+    }
+
+    public List<OptionSnapshot> parseOptionChainSnapshots(JsonNode root) {
+        List<OptionSnapshot> result = new ArrayList<>();
+
+        root.path("snapshots").fields().forEachRemaining(entry -> {
+            String symbol = entry.getKey();
+            JsonNode snapshot = entry.getValue();
+
+            JsonNode quote = snapshot.path("latestQuote");
+            JsonNode greeks = snapshot.path("greeks");
+
+            result.add(new OptionSnapshot(
+                    symbol,
+                    decimalOrNull(quote, "bp"),
+                    decimalOrNull(quote, "ap"),
+                    decimalOrNull(greeks, "delta"),
+                    null
+            ));
+        });
+
+        return result;
+    }
+
+    private BigDecimal decimalOrNull(JsonNode node, String field) {
+        JsonNode value = node.get(field);
+
+        if (value == null || value.isNull() || !value.isNumber()) {
+            return null;
+        }
+
+        return value.decimalValue();
+    }
+
+    public JsonNode getOptionLatestQuotes(List<String> symbols) throws Exception {
+        return run(
+                "data", "option", "latest-quotes",
+                "--symbols", String.join(",", symbols)
+        );
     }
 }
