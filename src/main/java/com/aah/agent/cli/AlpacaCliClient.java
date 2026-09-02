@@ -172,6 +172,25 @@ public class AlpacaCliClient {
         return result;
     }
 
+    public List<OptionSnapshot> parseOptionLatestQuotes(JsonNode root) {
+        List<OptionSnapshot> result = new ArrayList<>();
+
+        root.path("quotes").fields().forEachRemaining(entry -> {
+            String symbol = entry.getKey();
+            JsonNode quote = entry.getValue();
+
+            result.add(new OptionSnapshot(
+                    symbol,
+                    decimalOrNull(quote, "bp"),
+                    decimalOrNull(quote, "ap"),
+                    null,
+                    null
+            ));
+        });
+
+        return result;
+    }
+
     private BigDecimal decimalOrNull(JsonNode node, String field) {
         JsonNode value = node.get(field);
 
