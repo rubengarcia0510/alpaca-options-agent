@@ -17,11 +17,7 @@ public class OptionOrderExecutionService {
     private final AlpacaCliClient alpacaCliClient;
     private final Clock clock;
 
-    public OptionOrderExecutionService(AlpacaCliClient alpacaCliClient) {
-        this(alpacaCliClient, Clock.systemUTC());
-    }
-
-    OptionOrderExecutionService(
+    public OptionOrderExecutionService(
             AlpacaCliClient alpacaCliClient,
             Clock clock
     ) {

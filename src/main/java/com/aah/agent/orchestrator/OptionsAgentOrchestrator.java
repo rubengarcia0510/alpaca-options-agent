@@ -15,8 +15,6 @@ import com.aah.agent.risk.RiskResult;
 import com.aah.agent.signal.TechnicalSignal;
 import com.aah.agent.signal.TechnicalSignalService;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@ConditionalOnBean(ChatClient.class)
 public class OptionsAgentOrchestrator {
 
     private final TechnicalSignalService technicalSignalService;
