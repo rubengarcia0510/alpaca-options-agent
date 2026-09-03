@@ -76,6 +76,7 @@ private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
       .pipe(timeout(60000))
       .subscribe({
         next: (decision) => {
+          alert(JSON.stringify(decision, null, 2));
           this.evaluating = false;
           this.evaluated = true;
           this.decision = decision;
