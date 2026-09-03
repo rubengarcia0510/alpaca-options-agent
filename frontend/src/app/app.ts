@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { timeout } from 'rxjs';
 
 interface TechnicalSignal {
   symbol: string;
@@ -70,6 +71,7 @@ private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
       .get<OptionsDecision>(`${this.apiUrl}/api/options/evaluate`, {
         params: { symbol: this.symbol.trim().toUpperCase() }
       })
+      .pipe(timeout(60000))
       .subscribe({
         next: (decision) => {
           this.evaluating = false;
@@ -80,7 +82,10 @@ private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
           console.error('Options evaluation failed', error);
           this.evaluating = false;
           this.evaluated = false;
-          this.errorMessage = 'Unable to evaluate the selected symbol.';
+          this.errorMessage =
+            error?.name === 'TimeoutError'
+              ? 'Evaluation timed out. Please try again.'
+              : 'Unable to evaluate the selected symbol.';
         }
       });
   }
