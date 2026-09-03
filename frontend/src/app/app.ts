@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { timeout } from 'rxjs';
@@ -53,7 +53,10 @@ interface OptionsDecision {
 })
 export class App {
 private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly changeDetectorRef: ChangeDetectorRef
+  ) {}
 
   symbol = 'SPY';
   evaluating = false;
@@ -78,6 +81,7 @@ private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
           this.evaluating = false;
           this.evaluated = true;
           this.decision = decision;
+          this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
           console.error('Options evaluation failed', error);
