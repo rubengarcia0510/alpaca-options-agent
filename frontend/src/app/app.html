@@ -43,7 +43,12 @@
         <div class="result-header">
           <div>
             <p class="eyebrow">EVALUATION RESULT</p>
-            <h2>{{ decision.signal.symbol }}</h2>
+
+            @if (decision.signal.signal) {
+              <h2>{{ decision.signal.symbol }}</h2>
+            } @else {
+              <h2>{{ decision.signal.symbol }} — No opportunity detected</h2>
+            }
           </div>
 
           <span class="status">
@@ -51,66 +56,66 @@
           </span>
         </div>
 
-        <p class="reason">{{ decision.reason }}</p>
-
-        @if (decision.optionCandidate) {
-          <div class="option-details">
-            <div>
-              <span class="label">Contract</span>
-              <strong>{{ decision.optionCandidate.symbol }}</strong>
-            </div>
-
-            <div>
-              <span class="label">DTE</span>
-              <strong>{{ decision.optionCandidate.daysToExpiration }}</strong>
-            </div>
-
-            <div>
-              <span class="label">Strike</span>
-              <strong>${{ decision.optionCandidate.strikePrice }}</strong>
-            </div>
-
-            <div>
-              <span class="label">Ask</span>
-              <strong>${{ decision.optionCandidate.ask }}</strong>
-            </div>
-
-            <div>
-              <span class="label">Delta</span>
-              <strong>{{ decision.optionCandidate.delta }}</strong>
-            </div>
-
-            <div>
-              <span class="label">Entry</span>
-              <strong>${{ decision.optionCandidate.entryPrice }}</strong>
-            </div>
-          </div>
+        @if (!decision.signal.signal) {
+          <p class="reason">{{ decision.signal.reason }}</p>
         } @else {
-          <div class="no-option">
-            No option candidate was selected.
-          </div>
-        }
+          <p class="reason">{{ decision.reason }}</p>
 
-        @if (decision.llmConfirmation) {
-          <div class="decision-row">
-            <span>LLM confirmation</span>
-            <strong>
-              {{ decision.llmConfirmation.confirmed ? 'CONFIRMED' : 'NOT CONFIRMED' }}
-            </strong>
-          </div>
+          @if (decision.optionCandidate) {
+            <div class="option-details">
+              <div>
+                <span class="label">Contract</span>
+                <strong>{{ decision.optionCandidate.symbol }}</strong>
+              </div>
 
-          <p class="reason">{{ decision.llmConfirmation.reasoning }}</p>
-        }
+              <div>
+                <span class="label">DTE</span>
+                <strong>{{ decision.optionCandidate.daysToExpiration }}</strong>
+              </div>
 
-        @if (decision.riskResult) {
-          <div class="decision-row">
-            <span>Risk decision</span>
-            <strong>
-              {{ decision.riskResult.allowed ? 'APPROVED' : 'BLOCKED' }}
-            </strong>
-          </div>
+              <div>
+                <span class="label">Strike</span>
+                <strong>${{ decision.optionCandidate.strikePrice }}</strong>
+              </div>
 
-          <p class="reason">{{ decision.riskResult.reason }}</p>
+              <div>
+                <span class="label">Ask</span>
+                <strong>${{ decision.optionCandidate.ask }}</strong>
+              </div>
+
+              <div>
+                <span class="label">Delta</span>
+                <strong>{{ decision.optionCandidate.delta }}</strong>
+              </div>
+
+              <div>
+                <span class="label">Entry</span>
+                <strong>${{ decision.optionCandidate.entryPrice }}</strong>
+              </div>
+            </div>
+          }
+
+          @if (decision.llmConfirmation) {
+            <div class="decision-row">
+              <span>LLM confirmation</span>
+              <strong>
+                {{ decision.llmConfirmation.confirmed ? 'CONFIRMED' : 'NOT CONFIRMED' }}
+              </strong>
+            </div>
+
+            <p class="reason">{{ decision.llmConfirmation.reasoning }}</p>
+          }
+
+          @if (decision.riskResult) {
+            <div class="decision-row">
+              <span>Risk decision</span>
+              <strong>
+                {{ decision.riskResult.allowed ? 'APPROVED' : 'BLOCKED' }}
+              </strong>
+            </div>
+
+            <p class="reason">{{ decision.riskResult.reason }}</p>
+          }
         }
       </article>
     }
