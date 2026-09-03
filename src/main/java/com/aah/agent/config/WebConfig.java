@@ -10,7 +10,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:4200", "https://alpaca-options-agent-nine.vercel.app")
+                .allowedOrigins(
+                        "http://localhost:4200",
+                        "https://alpaca-options-agent-nine.vercel.app",
+                        "https://alpaca-options-agent-eo2wyoxnq-rubengarcia0510s-projects.vercel.app"
+                )
                 .allowedMethods("GET", "POST", "OPTIONS");
     }
 }
