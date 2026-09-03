@@ -67,8 +67,6 @@ private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
     this.decision = null;
     this.errorMessage = '';
 
-    alert('Evaluating symbol: ' + this.symbol.trim().toUpperCase());
-
     this.http
       .get<OptionsDecision>(`${this.apiUrl}/api/options/evaluate`, {
         params: { symbol: this.symbol.trim().toUpperCase() }
@@ -76,7 +74,6 @@ private readonly apiUrl = 'https://alpaca-options-agent.onrender.com';
       .pipe(timeout(60000))
       .subscribe({
         next: (decision) => {
-          alert(JSON.stringify(decision, null, 2));
           this.evaluating = false;
           this.evaluated = true;
           this.decision = decision;
